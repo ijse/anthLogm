@@ -1,18 +1,18 @@
 // Generated on 2014-04-19 using generator-socketio 0.0.3
 'use strict';
 var moment = require('moment');
- 
+
 var LIVERELOAD_PORT = 35729;
 var RUNNING_PORT = 1337; // <- if you change this, you need to change in public/js/app.js and recompile
 var lrSnippet = require('connect-livereload')({port: LIVERELOAD_PORT});
 var mountFolder = function (connect, dir) {
   return connect.static(require('path').resolve(dir));
 };
- 
+
 module.exports = function (grunt) {
   // load all grunt tasks
   require('matchdep').filterDev('grunt-*').forEach(grunt.loadNpmTasks);
- 
+
   grunt.initConfig({
 
     cssmin: {
@@ -36,28 +36,6 @@ module.exports = function (grunt) {
         }
       }
     },
-    
-    sass: {
-      dist: {
-        options: {
-          style: 'compressed'
-        },
-        files: {
-          'public/css/core.css': 'public/bower_components/sass-bootstrap/lib/bootstrap.scss',
-        }
-      }
-    },
-
-    stylus: {
-      compile: {
-        options: {
-          compress:true
-        },
-        files: {
-          'public/css/core.css': 'public/bower_components/bootstrap-stylus/stylus/bootstrap.styl'
-        }
-      }
-    },
 
     concat: {
       options: {
@@ -70,7 +48,7 @@ module.exports = function (grunt) {
       },
     },
 
-    //this is currently turned off, since jquery KILLS it 
+    //this is currently turned off, since jquery KILLS it
     jshint: {
       options: {
         curly: true,
@@ -83,7 +61,7 @@ module.exports = function (grunt) {
       },
       files:{
         src:['public/js/concat.js']
-      } 
+      }
     },
 
     uglify: {
@@ -103,12 +81,12 @@ module.exports = function (grunt) {
         options: {
             livereload: true
         },
-        scripts: {
-            files: [
-                'public/js/**/*.js'
-            ],
-            tasks:['build']
-        },
+        // scripts: {
+        //     files: [
+        //         'public/js/**/*.js'
+        //     ],
+        //     tasks:['build']
+        // },
         css: {
             files: [
                 'public/css/**/*.css',
@@ -198,9 +176,9 @@ module.exports = function (grunt) {
     }
 
   });
- 
+
   //grunt.registerTask('server', ['build', 'connect:livereload', 'open', 'watch']);
- 
+
   grunt.registerTask('build', ['less', 'concat', 'uglify']);
 
   grunt.registerTask('launch', ['wait', 'open']);

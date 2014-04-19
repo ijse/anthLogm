@@ -12,16 +12,29 @@ $(function(){
 		$clearAllPosts = $('#clearAllPosts'),
 		$sendBlastButton = $('#send');
 
-
-	//SOCKET STUFF
-	socket.on("blast", function(data){
+	var addContent = function(content) {
 		var copy = $allPostsTextArea.html();
-		$allPostsTextArea.html('<p>' + copy + data.msg + "</p>");
+		$allPostsTextArea.html(copy + content);
 		$allPostsTextArea.scrollTop($allPostsTextArea[0].scrollHeight - $allPostsTextArea.height());
 		//.css('scrollTop', $allPostsTextArea.css('scrollHeight'));
+	}
 
+	//SOCKET STUFF
+	socket.on("out-log", function(data){
+		var content = data.msg.replace(/\r\n/g, '<br>');
+		addContent('<pre>' + content + '</pre>');
 	});
-	
+
+	socket.on("message", function(data) {
+		var content = data.msg;
+		addContent('<p class="text-warning">' + content + '</p>');
+	});
+	socket.on("command", function(data) {
+		var content = data.msg;
+		addContent('<p class="text-info">' + data.msg + '</p>');
+		addContent('<pre>' + data.resp + '</pre>');
+	});
+
 	$clearAllPosts.click(function(e){
 		$allPostsTextArea.text('');
 	});
@@ -29,13 +42,19 @@ $(function(){
 	$sendBlastButton.click(function(e){
 
 		var blast = $blastField.val();
+		if(!blast) {
+			return ;
+		}
+		var arr = blast.split(' ');
+		var cmd_name = arr[0];
+		var cmd_args = arr.splice(1);
+
 		if(blast.length){
-			socket.emit("blast", {msg:blast}, 
+			socket.emit("command", {cmd: cmd_name, args: cmd_args },
 				function(data){
 					$blastField.val('');
 				});
 		}
-
 
 	});
 
@@ -44,5 +63,5 @@ $(function(){
 	        $sendBlastButton.trigger('click');//lazy, but works
 	    }
 	})
-	
+
 });
