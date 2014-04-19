@@ -16,3 +16,7 @@ var buildCmd = function(cmd, args, out, err) {
 	}
 };
 
+
+exports.pipeLog = function(logName, out, err) {
+	buildCmd('tail', [ '-f', logName], out, err);
+}
