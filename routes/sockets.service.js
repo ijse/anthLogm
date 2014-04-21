@@ -90,12 +90,21 @@ exports.serve = function(io) {
 				default:
 					resp = 'What? Go try `help`.';
 			}
-			io.sockets.emit('command', {
+			socket.emit('command', {
 				msg: ">> " + data.cmd + ' ' + data.args.join(' '),
 				resp: resp
 			});
 
 			fn();
+		});
+
+
+		// Client disconnect, leave rooms
+		socket.on('disconnect', function() {
+			io.sockets.emit('message', {
+				msg: "Client: [" + endpoint.address.address + ":" + endpoint.address.port + "] leave.",
+				date: endpoint.time
+			});
 		});
 
 	});
