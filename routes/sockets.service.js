@@ -27,6 +27,14 @@ exports.serve = function(io) {
 			date: endpoint.time
 		});
 
+		// Client disconnect, leave rooms
+		socket.on('disconnect', function() {
+			io.sockets.emit('message', {
+				msg: "Client: [" + endpoint.address.address + ":" + endpoint.address.port + "] leave.",
+				date: endpoint.time
+			});
+		});
+
 		socket.on('subscribe', function(room) {
 			console.log('joining room', room);
 
@@ -61,15 +69,18 @@ exports.serve = function(io) {
 						break;
 					}
 
+					var logFile = path.join(__dirname, logName);
+					var roomName = 'LogRoom:' + logFile;
+
 					// Check all rooms,
 					// console.log(io.sockets.manager.rooms);
 					if(!io.sockets.manager.rooms[logName]) {
 						// Start new pipe
-						LogService.pipeLog(path.join(__dirname, logName), function(data) {
+						var pipeHandler = LogService.pipeLog(logFile, function(data) {
 							// Success pipe logs, join the room
-							socket.join('LogRoom:' + logName);
+							socket.join(roomName);
 
-							io.sockets.in('LogRoom:' + logName).emit('out-log', {
+							io.sockets.in(roomName).emit('out-log', {
 								msg: data.toString()
 							});
 						}, function(data) {
@@ -77,6 +88,16 @@ exports.serve = function(io) {
 							io.sockets.emit('out-log', {
 								msg: data.toString()
 							});
+						});
+
+						// Stop piping when there is no client connected
+						socket.once('disconnect', function() {
+							var clientsInRoom = io.sockets.clients(roomName);
+
+							// Check clients online
+							if(1 > clientsInRoom.length) {
+								pipeHandler.kill();
+							}
 						});
 					}
 
@@ -98,14 +119,6 @@ exports.serve = function(io) {
 			fn();
 		});
 
-
-		// Client disconnect, leave rooms
-		socket.on('disconnect', function() {
-			io.sockets.emit('message', {
-				msg: "Client: [" + endpoint.address.address + ":" + endpoint.address.port + "] leave.",
-				date: endpoint.time
-			});
-		});
 
 	});
 
