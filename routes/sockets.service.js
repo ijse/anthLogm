@@ -55,7 +55,7 @@ exports.serve = function (io) {
 				resp = 'Commands avaliable: \n' +
 					' help              Show this message.\n' +
 					' watch &lt;logName&gt;   Follow the logs.\n' +
-					' list              List avaliable logs.\n' +
+					' listLogs              List avaliable logs.\n' +
 					'';
 
 				break;
